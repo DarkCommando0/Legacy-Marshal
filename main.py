@@ -1,10 +1,34 @@
 import discord
 from discord.ext import commands
+from flask import Flask, send_file
+from threading import Thread
+import os
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")  # Load token only from .env
+if not TOKEN:
+    raise ValueError("DISCORD_BOT_TOKEN not found in .env file")
+
+# Flask setup for keep-alive
+app = Flask('')
+@app.route('/')
+def home():
+    return "LegacyMarshal LFG Bot is operational!"
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('static/favicon.ico', mimetype='image/x-icon') if os.path.exists('static/favicon.ico') else ('', 204)
+def run_flask():
+    app.run(host='0.0.0.0', port=5000, threaded=True)
+def keep_alive():
+    t = Thread(target=run_flask, daemon=True)
+    t.start()
+
+# Bot setup
 intents = discord.Intents.default()
 intents.message_content = True  # Needed for prefix commands
 bot = commands.Bot(command_prefix="!")  # Default prefix is !
-TOKEN = "MTM3Mzg3NTE4MzA2ODExOTE2MA.GyygYs.VOQfhJ0qcX3OEQeJZo-y5L-7Em6BtURBPHvvdw"  # Token provided
 
 # Custom prefix check to allow !! for sqclassic
 def get_prefix(bot, message):
@@ -17,9 +41,8 @@ bot.command_prefix = get_prefix
 
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
     print(f"Logged in as {bot.user} (ID: {bot.user.id}) at {discord.utils.utcnow().strftime('%Y-%m-%d %H:%M:%S')} EDT")
-    print("Slash commands synced.")
+    keep_alive()  # Start Flask keep-alive
 
 # Intro message when bot joins a server
 @bot.event
