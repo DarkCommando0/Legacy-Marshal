@@ -1,4 +1,4 @@
-name: Deploy LegacyMarshal to Render
+name: Deploy to Render
 on:
   push:
     branches: [ main ]
@@ -13,7 +13,7 @@ jobs:
       - name: Trigger Render Deployment
         run: |
           # Fetch the list of services and extract the service ID for the LegacyMarshal bot
-          RESPONSE=$(curl -s -H "Authorization: Bearer rnd_jkxPyd4zvTSi9Xn3X1GYLnlSRrE3" \
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
           -H "Content-Type: application/json" \
           https://api.render.com/v1/services?limit=20)
           
@@ -25,7 +25,7 @@ jobs:
           fi
           
           # Trigger the deployment using the dynamically fetched service ID
-          curl -X POST -H "Authorization: Bearer rnd_jkxPyd4zvTSi9Xn3X1GYLnlSRrE3" \
+          curl -X POST -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
           -H "Content-Type: application/json" \
           -d "{\"serviceId\":\"$SERVICE_ID\"}" \
           https://api.render.com/v1/services/$SERVICE_ID/deploys
