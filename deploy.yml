@@ -8,11 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy to Render
+      - name: Install jq
+        run: sudo apt-get install -y jq
+      - name: Get Service ID and Deploy
         run: |
-          curl -X POST -H "Authorization: Bearer ${RENDER_TOKEN}" \
+          # Fetch the list of services and extract the service ID for the LegacyMarshal bot
+          RESPONSE=$(curl -s -H "Authorization: Bearer rnd_jkxPyd4zvTSi9Xn3X1GYLnlSRrE3" \
           -H "Content-Type: application/json" \
-          -d '{"serviceId":"your_render_service_id"}' \
-          https://api.render.com/v1/services/your_render_service_id/deploys
-        env:
-          RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+          https://api.render.com/v1/services?limit=20)
+          
+          SERVICE_ID=$(echo "$RESPONSE" | jq -r '.[] | select(.service.name == "LegacyMarshal") | .service.id')
+          
+          if [ -z "$SERVICE_ID" ]; then
+            echo "Error: Could not find a service named 'LegacyMarshal'"
+            exit 1
+          fi
+          
+          echo "Found service ID: $SERVICE_ID"
+          
+          # Trigger the deployment using the dynamically fetched service ID
+          curl -X POST -H "Authorization: Bearer rnd_jkxPyd4zvTSi9Xn3X1GYLnlSRrE3" \
+          -H "Content-Type: application/json" \
+          -d "{\"serviceId\":\"$SERVICE_ID\"}" \
+          https://api.render.com/v1/services/$SERVICE_ID/deploys
