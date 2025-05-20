@@ -28,7 +28,7 @@ def keep_alive():
 # Bot setup
 intents = discord.Intents.default()
 intents.message_content = True  # Needed for prefix commands
-bot = commands.Bot(command_prefix="!")  # Default prefix is !
+bot = commands.Bot(command_prefix="!", intents=intents)  # Pass intents here
 
 # Custom prefix check to allow !! for sqclassic
 def get_prefix(bot, message):
