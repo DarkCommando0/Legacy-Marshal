@@ -74,6 +74,8 @@ async def check_and_reorder_roles(force=False):
     print('🔍 Checking role order...', 'Forced' if force else '')
     try:
         guild = bot.guilds[0] if bot.guilds else None
+        if guild:
+            print(f"Connected to guild: {guild.name} (ID: {guild.id})")
         if not guild:
             print('❌ No guild found for role reordering')
             return
@@ -89,6 +91,7 @@ async def check_and_reorder_roles(force=False):
             return
 
         await guild.fetch_roles()
+        print(f"Roles fetched: {len(guild.roles)} roles found")
         roles = guild.roles
 
         print('ℹ️ Available roles in guild:')
