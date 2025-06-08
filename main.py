@@ -111,15 +111,15 @@ async def check_and_reorder_roles(force=False):
             return
 
         new_positions = []
-        base_position = bot_member.top_role.position - 1
+        base_position = bot_member.top_role.position - len(desiredRoleOrder)  # Start at the lowest position
         for role_id in desiredRoleOrder:
             role = discord.utils.get(roles, id=role_id)
             if role:
-                if base_position < 1:
-                    print('❌ Position too low to assign roles; bot role position too low')
+                if base_position >= bot_member.top_role.position:  # Prevent exceeding bot's position
+                    print('❌ Position too high to assign roles; bot role position too low')
                     return
                 new_positions.append((role, base_position))
-                base_position += 1  # Increment instead of decrement for top-to-bottom order
+                base_position += 1  # Increment to the next higher position
             else:
                 print(f'⚠️ Role {role_id} not found in guild - check ID or role existence')
 
