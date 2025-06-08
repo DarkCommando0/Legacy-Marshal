@@ -119,7 +119,7 @@ async def check_and_reorder_roles(force=False):
                     print('❌ Position too low to assign roles; bot role position too low')
                     return
                 new_positions.append((role, base_position))
-                base_position -= 1
+                base_position += 1  # Increment instead of decrement for top-to-bottom order
             else:
                 print(f'⚠️ Role {role_id} not found in guild - check ID or role existence')
 
